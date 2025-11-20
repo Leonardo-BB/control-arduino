@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Arduino</title>
+
+    <!-- Estilos modernos -->
+    <style>
+        body {
+            background: #f5f6fa;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 18px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: 1px solid #bdc3c7;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #0984e3;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0773c2;
+        }
+
+        .log {
+            margin-top: 20px;
+            background: #ecf0f1;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            height: 130px;
+            overflow-y: auto;
+            border: 1px solid #dcdde1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Control Arduino</h2>
+
+    <label>Trama a enviar:</label>
+    <input id="trama" placeholder="Ej: 40-99-11" autocomplete="off">
+
+    <button onclick="enviar()">ENVIAR</button>
+
+    <div class="log" id="log">Esperando comandos...</div>
+</div>
+
+<script>
+    // 👉 Cambia esta URL por la que te da Ngrok cada vez
+    let API_URL = "https://centrosomic-stringhalted-suzy.ngrok-free.dev/api/Arduino/comando";
+
+
+    function log(msg) {
+        let box = document.getElementById("log");
+        box.innerHTML += "<br>" + msg;
+        box.scrollTop = box.scrollHeight;
+    }
+
+    async function enviar() {
+        let mensaje = document.getElementById("trama").value.trim();
+
+        if (mensaje === "") {
+            alert("La trama no puede estar vacía");
+            return;
+        }
+
+        log("📤 Enviando: " + mensaje);
+
+        try {
+            let response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mensaje })
+            });
+
+            let json = await response.json();
+            log("✅ Servidor respondió: " + JSON.stringify(json));
+        } catch (err) {
+            log("❌ Error: " + err);
+        }
+    }
+</script>
+
+</body>
+</html>
