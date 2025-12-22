@@ -89,40 +89,38 @@
 </div>
 
 <script>
-    // 👉 Cambia esta URL por la que te da Ngrok cada vez
-    let API_URL = "https://centrosomic-stringhalted-suzy.ngrok-free.dev/api/Arduino/comando";
+const API = "https://centrosomic-stringhalted-suzy.ngrok-free.dev/api/Arduino";
 
+async function enviar() {
+    let trama = document.getElementById("trama").value.trim();
+    if (!trama) return alert("Ingresa una trama");
 
-    function log(msg) {
-        let box = document.getElementById("log");
-        box.innerHTML += "<br>" + msg;
-        box.scrollTop = box.scrollHeight;
-    }
+    document.getElementById("log").innerHTML = "📤 Enviando...";
 
-    async function enviar() {
-        let mensaje = document.getElementById("trama").value.trim();
+    await fetch(API + "/comando", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensaje: trama })
+    });
+}
 
-        if (mensaje === "") {
-            alert("La trama no puede estar vacía");
-            return;
+async function leerRespuesta() {
+    try {
+        let r = await fetch(API + "/respuesta");
+        if (r.status === 200) {
+            let j = await r.json();
+            document.getElementById("log").innerHTML =
+                "✅ Arduino: " + j.respuesta;
         }
+    } catch {}
+}
 
-        log("📤 Enviando: " + mensaje);
-
-        try {
-            let response = await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mensaje })
-            });
-
-            let json = await response.json();
-            log("✅ Servidor respondió: " + JSON.stringify(json));
-        } catch (err) {
-            log("❌ Error: " + err);
-        }
-    }
+setInterval(leerRespuesta, 1000);
 </script>
+<div id="log" style="margin-top:15px;font-weight:bold;color:green;">
+Esperando respuesta del Arduino...
+</div>
+
 
 </body>
 </html>
