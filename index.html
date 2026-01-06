@@ -16,7 +16,9 @@ input, button { padding:10px; font-size:16px; }
 <input id="cmd" placeholder="40-99-11">
 <button onclick="enviar()">Enviar</button>
 
-<div id="resp"></div>
+<p><b>Respuesta Arduino:</b></p>
+<pre id="respuesta">---</pre>
+
 
 <script>
 const API = "https://centrosomic-stringhalted-suzy.ngrok-free.dev/api/Arduino";
@@ -29,22 +31,21 @@ async function enviar() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mensaje: cmd })
   });
-
-  document.getElementById("resp").innerText = "⏳ Esperando respuesta...";
 }
 
-async function leerRespuesta() {
+async function revisarRespuesta() {
   const r = await fetch(API + "/respuesta");
-  const j = await r.json();
-
-  if (j.mensaje) {
-    document.getElementById("resp").innerText = "Arduino: " + j.mensaje;
+  if (r.status === 200) {
+    const j = await r.json();
+    document.getElementById("respuesta").innerText = j.mensaje;
   }
 }
 
-setInterval(leerRespuesta, 1000);
+setInterval(revisarRespuesta, 1000);
 </script>
+
 
 </body>
 </html>
+
 
