@@ -1,126 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Arduino</title>
-
-    <!-- Estilos modernos -->
-    <style>
-        body {
-            background: #f5f6fa;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container {
-            max-width: 420px;
-            width: 100%;
-            background: white;
-            padding: 22px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 18px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #34495e;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            font-size: 18px;
-            border-radius: 8px;
-            border: 1px solid #bdc3c7;
-            margin-top: 5px;
-            margin-bottom: 15px;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: #0984e3;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #0773c2;
-        }
-
-        .log {
-            margin-top: 20px;
-            background: #ecf0f1;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            height: 130px;
-            overflow-y: auto;
-            border: 1px solid #dcdde1;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Control Arduino</title>
+<style>
+body { font-family: Arial; background:#111; color:#0f0; text-align:center; }
+input, button { padding:10px; font-size:16px; }
+#resp { margin-top:20px; color:#0ff; }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Control Arduino</h2>
+<h2>Control Arduino</h2>
 
-    <label>Trama a enviar:</label>
-    <input id="trama" placeholder="Ej: 40-99-11" autocomplete="off">
+<input id="cmd" placeholder="40-99-11">
+<button onclick="enviar()">Enviar</button>
 
-    <button onclick="enviar()">ENVIAR</button>
-
-    <div class="log" id="log">Esperando comandos...</div>
-</div>
+<div id="resp"></div>
 
 <script>
 const API = "https://centrosomic-stringhalted-suzy.ngrok-free.dev/api/Arduino";
 
 async function enviar() {
-    let trama = document.getElementById("trama").value.trim();
-    if (!trama) return alert("Ingresa una trama");
+  const cmd = document.getElementById("cmd").value;
 
-    document.getElementById("log").innerHTML = "📤 Enviando...";
+  await fetch(API + "/comando", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mensaje: cmd })
+  });
 
-    await fetch(API + "/comando", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mensaje: trama })
-    });
+  document.getElementById("resp").innerText = "⏳ Esperando respuesta...";
 }
 
 async function leerRespuesta() {
-    try {
-        let r = await fetch(API + "/respuesta");
-        if (r.status === 200) {
-            let j = await r.json();
-            document.getElementById("log").innerHTML =
-                "✅ Arduino: " + j.respuesta;
-        }
-    } catch {}
+  const r = await fetch(API + "/respuesta");
+  const j = await r.json();
+
+  if (j.mensaje) {
+    document.getElementById("resp").innerText = "Arduino: " + j.mensaje;
+  }
 }
 
 setInterval(leerRespuesta, 1000);
 </script>
-<div id="log" style="margin-top:15px;font-weight:bold;color:green;">
-Esperando respuesta del Arduino...
-</div>
-
 
 </body>
 </html>
+
