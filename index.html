@@ -13,39 +13,40 @@ input, button { padding:10px; font-size:16px; }
 
 <h2>Control Arduino</h2>
 
-<input id="cmd" placeholder="40-99-11">
+<input id="trama" placeholder="40-08-44">
 <button onclick="enviar()">Enviar</button>
+<p id="respuesta"></p>
 
-<p><b>Respuesta Arduino:</b></p>
-<pre id="respuesta">---</pre>
 
 
 <script>
 const API = "https://centrosomic-stringhalted-suzy.ngrok-free.dev/api/Arduino";
 
 async function enviar() {
-  const cmd = document.getElementById("cmd").value;
-
-  await fetch(API + "/comando", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mensaje: cmd })
-  });
+    const trama = document.getElementById("trama").value;
+    await fetch(API + "/comando", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensaje: trama })
+    });
 }
 
-async function revisarRespuesta() {
-  const r = await fetch(API + "/respuesta");
-  if (r.status === 200) {
-    const j = await r.json();
-    document.getElementById("respuesta").innerText = j.mensaje;
-  }
+async function leerRespuesta() {
+    const r = await fetch(API + "/respuesta");
+    if (r.status === 200) {
+        const data = await r.json();
+        document.getElementById("respuesta").innerText = data.mensaje;
+    }
 }
 
-setInterval(revisarRespuesta, 1000);
+// 🔁 polling cada 1s
+setInterval(leerRespuesta, 1000);
 </script>
+
 
 
 </body>
 </html>
+
 
 
