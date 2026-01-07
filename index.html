@@ -6,7 +6,7 @@
 <style>
 body { font-family: Arial; background:#111; color:#0f0; text-align:center; }
 input, button { padding:10px; font-size:16px; }
-#resp { margin-top:20px; color:#0ff; }
+#respuesta { margin-top:20px; color:#0ff; }
 </style>
 </head>
 <body>
@@ -15,17 +15,14 @@ input, button { padding:10px; font-size:16px; }
 
 <input id="trama" placeholder="40-08-44">
 <button onclick="enviar()">Enviar</button>
-<p id="respuesta"></p>
 
-
-
-<div id="respuesta" style="margin-top:10px;color:lime;"></div>
+<div id="respuesta"></div>
 
 <script>
 const API = "https://centrosomic-stringhalted-suzy.ngrok-free.dev/api/Arduino";
 
 async function enviar() {
-    const comando = document.getElementById("cmd").value;
+    const comando = document.getElementById("trama").value;
 
     await fetch(API + "/comando", {
         method: "POST",
@@ -34,7 +31,7 @@ async function enviar() {
     });
 }
 
-// 🔁 LEER RESPUESTA DEL ARDUINO CADA SEGUNDO
+// 🔁 Leer respuesta Arduino
 setInterval(async () => {
     const r = await fetch(API + "/respuesta");
     if (r.status === 200) {
@@ -44,12 +41,5 @@ setInterval(async () => {
 }, 1000);
 </script>
 
-
-
-
 </body>
 </html>
-
-
-
-
