@@ -20,9 +20,11 @@ input, button { padding:10px; font-size:16px; }
 
 <script>
 const API = "https://centrosomic-stringhalted-suzy.ngrok-free.dev/api/Arduino";
+let buffer = "";
 
 async function enviar() {
     const comando = document.getElementById("trama").value;
+    buffer = ""; // limpiar buffer al enviar
 
     await fetch(API + "/comando", {
         method: "POST",
@@ -33,13 +35,26 @@ async function enviar() {
 
 // 🔁 Leer respuesta Arduino
 setInterval(async () => {
-    const r = await fetch(API + "/respuesta");
-    if (r.status === 200) {
-        const j = await r.json();
-        document.getElementById("respuesta").innerText = j.mensaje;
+    try {
+        const r = await fetch(API + "/respuesta");
+        if (r.status === 200) {
+            const j = await r.json();
+
+            buffer += j.mensaje + " ";
+
+            // Heurística: cuando llega el punto final, mostramos todo
+            if (buffer.includes(".")) {
+                document.getElementById("respuesta").innerText = buffer.trim();
+                buffer = "";
+            }
+        }
+    } catch (e) {
+        console.error(e);
     }
-}, 1000);
+}, 500);
 </script>
+
 
 </body>
 </html>
+
