@@ -19,34 +19,37 @@ input, button { padding:10px; font-size:16px; }
 
 
 
+<div id="respuesta" style="margin-top:10px;color:lime;"></div>
+
 <script>
 const API = "https://centrosomic-stringhalted-suzy.ngrok-free.dev/api/Arduino";
 
 async function enviar() {
-    const trama = document.getElementById("trama").value;
+    const comando = document.getElementById("cmd").value;
+
     await fetch(API + "/comando", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mensaje: trama })
+        body: JSON.stringify({ mensaje: comando })
     });
 }
 
-async function leerRespuesta() {
+// 🔁 LEER RESPUESTA DEL ARDUINO CADA SEGUNDO
+setInterval(async () => {
     const r = await fetch(API + "/respuesta");
     if (r.status === 200) {
-        const data = await r.json();
-        document.getElementById("respuesta").innerText = data.mensaje;
+        const j = await r.json();
+        document.getElementById("respuesta").innerText = j.mensaje;
     }
-}
-
-// 🔁 polling cada 1s
-setInterval(leerRespuesta, 1000);
+}, 1000);
 </script>
+
 
 
 
 </body>
 </html>
+
 
 
 
